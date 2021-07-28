@@ -13,6 +13,7 @@ import retrofit2.Response;
 
 public class NewsRepository {
 
+    //edit
     private final NewsApi newsApi;
 
     public NewsRepository() {
