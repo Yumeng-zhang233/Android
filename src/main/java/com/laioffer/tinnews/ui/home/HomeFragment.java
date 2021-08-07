@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.laioffer.tinnews.R;
+import com.laioffer.tinnews.TinNewsApplication;
 import com.laioffer.tinnews.databinding.FragmentHomeBinding;
 import com.laioffer.tinnews.model.Article;
 import com.laioffer.tinnews.repository.NewsRepository;
@@ -38,6 +39,8 @@ public class HomeFragment extends Fragment implements CardStackListener {
             Log.d("CardStackView", "Unliked " + layoutManager.getTopPosition());
         } else if (direction == Direction.Right) {
             Log.d("CardStackView", "Liked "  + layoutManager.getTopPosition());
+            Article article = articles.get(layoutManager.getTopPosition() -1);
+            viewModel.setFavoriteArticleInput(article);
         }
     }
 
