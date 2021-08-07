@@ -14,12 +14,57 @@ import android.view.ViewGroup;
 
 import com.laioffer.tinnews.R;
 import com.laioffer.tinnews.databinding.FragmentHomeBinding;
+import com.laioffer.tinnews.model.Article;
 import com.laioffer.tinnews.repository.NewsRepository;
 import com.laioffer.tinnews.repository.NewsViewModelFactory;
+import com.yuyakaido.android.cardstackview.CardStackLayoutManager;
+import com.yuyakaido.android.cardstackview.CardStackListener;
+import com.yuyakaido.android.cardstackview.Direction;
+import com.yuyakaido.android.cardstackview.Duration;
+import com.yuyakaido.android.cardstackview.StackFrom;
+import com.yuyakaido.android.cardstackview.SwipeAnimationSetting;
 
-public class HomeFragment extends Fragment {
+import java.util.List;
+
+public class HomeFragment extends Fragment implements CardStackListener {
+    @Override
+    public void onCardDragging(Direction direction, float ratio) {
+
+    }
+
+    @Override
+    public void onCardSwiped(Direction direction) {
+        if (direction == Direction.Left) {
+            Log.d("CardStackView", "Unliked " + layoutManager.getTopPosition());
+        } else if (direction == Direction.Right) {
+            Log.d("CardStackView", "Liked "  + layoutManager.getTopPosition());
+        }
+    }
+
+    @Override
+    public void onCardRewound() {
+
+    }
+
+    @Override
+    public void onCardCanceled() {
+
+    }
+
+    @Override
+    public void onCardAppeared(View view, int position) {
+
+    }
+
+    @Override
+    public void onCardDisappeared(View view, int position) {
+
+    }
+
     private HomeViewModel viewModel;
     private FragmentHomeBinding binding;
+    private CardStackLayoutManager layoutManager;
+    private List<Article> articles;
 
     public HomeFragment() {
         // Required empty public constructor
@@ -39,6 +84,14 @@ public class HomeFragment extends Fragment {
         NewsRepository repository = new NewsRepository();
         //Creates ViewModelProvider, which will create ViewModels via
         // the given Factory and retain them in a store of the given ViewModelStoreOwner.
+
+        // Setup CardStackView
+        CardSwipeAdapter swipeAdapter = new CardSwipeAdapter();
+        layoutManager = new CardStackLayoutManager(requireContext(), this);
+        layoutManager.setStackFrom(StackFrom.Top);
+        binding.homeCardStackView.setLayoutManager(layoutManager);
+        binding.homeCardStackView.setAdapter(swipeAdapter);
+
         viewModel = new ViewModelProvider(this, new NewsViewModelFactory(repository)).get(HomeViewModel.class);
         viewModel.setCountryInput("us");
         viewModel
@@ -47,9 +100,22 @@ public class HomeFragment extends Fragment {
                         getViewLifecycleOwner(),
                         newsResponse -> {
                             if (newsResponse != null) {
+                                articles = newsResponse.articles;
+                                swipeAdapter.setArticles(articles);
                                 Log.d("HomeFragment", newsResponse.toString());
                             }
                         });
-
+        // Handle like unlike button clicks
+        binding.homeLikeButton.setOnClickListener(v -> swipeCard(Direction.Right));
+        binding.homeUnlikeButton.setOnClickListener(v -> swipeCard(Direction.Left));
     }
+    private void swipeCard(Direction direction) {
+        SwipeAnimationSetting setting = new SwipeAnimationSetting.Builder()
+                .setDirection(direction)
+                .setDuration(Duration.Normal.duration)
+                .build();
+        layoutManager.setSwipeAnimationSetting(setting);
+        binding.homeCardStackView.swipe();
+    }
+
 }
