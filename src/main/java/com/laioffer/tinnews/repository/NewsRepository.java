@@ -1,5 +1,6 @@
 package com.laioffer.tinnews.repository;
 
+import android.content.pm.LabeledIntent;
 import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
@@ -11,6 +12,8 @@ import com.laioffer.tinnews.model.Article;
 import com.laioffer.tinnews.model.NewsResponse;
 import com.laioffer.tinnews.network.NewsApi;
 import com.laioffer.tinnews.network.RetrofitClient;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -75,6 +78,20 @@ public class NewsRepository {
         new FavoriteAsyncTask(database, resultLiveData).execute(article);
         return resultLiveData;
     }
+    //delete
+    public void deleteSavedArticle(Article article){
+        AsyncTask.execute(new Runnable() {
+            @Override
+            public void run() {
+                database.articleDao().deleteArticle(article);
+            }
+        });
+    }
+    //拿回来所有
+    public LiveData<List<Article>> getAllSavedArticles() {
+        return database.articleDao().getAllArticles();
+    }
+
     private static class FavoriteAsyncTask extends AsyncTask<Article, Void, Boolean> {
 
         private final TinNewsDatabase database;
